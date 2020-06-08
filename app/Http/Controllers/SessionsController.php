@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SessionsController extends Controller
 {
@@ -18,14 +20,14 @@ class SessionsController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)){
-          //登录成功后的相关操作
-            session()->flash('success', '欢迎回来！');
-            return redirect()->route('users,show', [Auth::user()]);
-        } else {
-            // 登录失败后的相关操作
-            session()->flash('danger','很抱歉,您的邮箱和密码不匹配');
-            return redirect()->back()->withInput();
-        }
+        $user  = User::create([
+            'name' => $request->name,
+            'eamil' => $request->eamil,
+            'password' => bcrypt($request->password),
+        ]);
+
+        Auth::login($user);
+        session()->flath('success','欢迎,您将在这里开启一段新的旅程~');
+        return redirect()->route('users.show',[$user]);
     }
 }
